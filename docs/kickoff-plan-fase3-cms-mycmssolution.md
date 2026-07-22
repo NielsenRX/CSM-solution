@@ -208,6 +208,8 @@ Når et spørgsmål er afklaret, skrives løsningen ind i kolonnen "Løsning/bes
 
 ## Opstartsguide: Første konkrete skridt
 
+> **Fast regel fremover:** Enhver ny opgave får et fortløbende ID (`TASK-07`, `TASK-08` osv.) i det øjeblik den defineres — både her i dokumentet og i `docs/BACKLOG.md`. ID'et bruges i commits/PR-beskrivelser, så arbejdet altid kan spores tilbage til den oprindelige opgave.
+
 ### Manuelt opsætning (gøres af projektejer/IT, før Claude Code kan starte)
 1. Installer .NET 10 SDK lokalt
 2. Installer Docker Desktop (til verificering før merge, ikke daglig brug)
@@ -215,22 +217,7 @@ Når et spørgsmål er afklaret, skrives løsningen ind i kolonnen "Løsning/bes
 4. Åbn Claude Code i repoet
 5. Aftal midlertidig CRM-adgang med CRM-teamet — løses i praksis af opgave 2 nedenfor (mock bag interface), så arbejdet ikke behøver vente på det rigtige CRM-API
 
-### Opgave 1 til Claude Code — scaffold løsningen (kan startes med det samme)
-```
-Opsæt en ny .NET-løsning kaldet MyCMSSolution med følgende projektstruktur:
-- MyCMSSolution.Web (Umbraco 17 LTS-hovedprojekt, .NET 10)
-- MyCMSSolution.SelfService (klassebibliotek til selvbetjeningsblokke)
-- MyCMSSolution.Crm.Client (klassebibliotek, isoleret CRM-integrationslag bag et interface,
-  så en rigtig implementering senere kan erstatte en midlertidig mock uden at ændre
-  resten af koden)
-- MyCMSSolution.Core (delte modeller og konfiguration)
-- MyCMSSolution.Tests (test-projekt)
-
-Installer Umbraco 17 LTS i MyCMSSolution.Web med SQLite som database til lokal udvikling.
-Opsæt git med main og develop branches. Tilføj en .gitignore passende til .NET/Umbraco.
-```
-
-### Opgave 1 til Claude Code — scaffold løsningen ✅ Gennemført
+### TASK-01 — scaffold løsningen ✅ Gennemført
 ```
 Opsæt en ny .NET-løsning kaldet MyCMSSolution med følgende projektstruktur:
 - MyCMSSolution.Web (Umbraco 17 LTS-hovedprojekt, .NET 10)
@@ -246,7 +233,7 @@ Opsæt git med main og develop branches. Tilføj en .gitignore passende til .NET
 ```
 **Status:** Alle fem projekter oprettet på `net10.0`, samlet i `MyCMSSolution.slnx`. Umbraco 17 pinnet til `17.*` via `Directory.Packages.props`. `ICrmClient`/`MockCrmClient` allerede stilladset i `Crm.Client` med DI-extension (`AddCrmClient()`), klar til opgave 2. `dotnet build`/`dotnet test` kører grønt. Git initialiseret med `main`/`develop`. **Resterende manuelt skridt:** kør `dotnet run --project MyCMSSolution.Web` for at gennemføre Umbracos installationswizard mod SQLite.
 
-### Opgave 2 til Claude Code — CRM-integrationslag med mock
+### TASK-02 — CRM-integrationslag med mock (I gang)
 ```
 I MyCMSSolution.Crm.Client: byg et interface ICrmClient med metoderne
 GetCustomerProfile, GetSubscriptions, GetInvoices baseret på felterne i
@@ -256,7 +243,7 @@ rigtige CRM-API er klart. Den rigtige implementering tilføjes senere som en
 separat klasse, der opfylder samme interface.
 ```
 
-### Opgave 3 til Claude Code — Docker-opsætning
+### TASK-03 — Docker-opsætning (Ikke startet)
 ```
 Opret docker-compose.dev.yml og docker-compose.prod.yml i /docker, baseret på
 Umbracos officielle Docker-anbefalinger for Umbraco 17 på .NET 10. Dev-filen
@@ -264,7 +251,7 @@ er kun til verificeringskørsler (ikke daglig brug), prod-filen skal være
 hærdet til on-premise drift.
 ```
 
-### Opgave 4 til Claude Code — Backlog og git-hook
+### TASK-04 — Backlog og git-hook ✅ Gennemført
 ```
 Opret en BACKLOG.md i /docs (docs-mappen ligger i repoets rod, side om side med
 MyCMSSolution.Web, MyCMSSolution.Core osv. og .slnx-filen — ikke inde i et af
@@ -283,7 +270,35 @@ Opsæt derudover et versioneret git pre-push hook-system:
 
 ### Vent med (afhænger af åbne spørgsmål — se tabel ovenfor)
 - Byg af selve blok-biblioteket → afventer marketings svar på blok-prioritering (spørgsmål 2, 3)
-- Rigtig CRM-integration (i stedet for mock) → afventer CRM-teamets validering og binding-beslutningen (spørgsmål 1, 4)
+- Rigtig CRM-integration (i stedet for mock) → afventer CRM-teamets validering og binding-beslutningen (spørgsmål 1, 4). **Besluttet:** mock bruges bevidst indtil videre, så udviklingen kan fortsætte parallelt med at CRM-teamet bygger det rigtige API
+
+### TASK-05 — Automatiseret test ved hvert push (Ikke startet)
+```
+Opret en GitHub Actions-workflow i .github/workflows/test.yml, der automatisk
+kører dotnet build og dotnet test på hele løsningen, hver gang der pushes til
+main eller develop, samt ved enhver pull request mod disse branches. Workflowen
+skal fejle synligt (rødt kryds i GitHub), hvis build eller tests fejler, så det
+er tydeligt i en pull request, før den merges.
+```
+
+### TASK-06 — Uafhængig Claude Code-kodegennemgang ved milepæle (Tilbagevendende proces, ikke en engangsopgave)
+Køres manuelt af projektejer ved hver milepæl (Fase 1-lancering, Fase 2-lancering, og altid før CRM-skrive-endpoints går i produktion) i en **frisk, uafhængig Claude Code-session** — ikke den samme session, der byggede koden.
+```
+Du skal lave en uafhængig kodegennemgang af denne løsning før lancering.
+Du har ikke skrevet koden selv — vurder den med friske øjne.
+
+Læs docs/beslutningsgrundlag-cms-mycmssolution.md og
+docs/kickoff-plan-fase3-cms-mycmssolution.md for at forstå krav og
+arkitekturbeslutninger. Gennemgå derefter koden og vurder:
+- Overholder implementeringen arkitekturprincipperne (API-first, ingen
+  sidecaching af personlige data, block-baseret redigering)?
+- Er der sikkerhedsproblemer, særligt omkring autentificering og CRM-kald?
+- Er der afvigelser fra kickoff-planens beslutninger, som ikke er begrundet?
+- Mangler der fejlhåndtering eller tests på kritiske stier?
+
+Lav en liste over fund, prioriteret efter alvorlighed (kritisk/vigtig/mindre).
+Ret ikke koden selv — bare rapporter fundene.
+```
 
 ## Samlet kickoff-tjekliste (uge 1)
 - [x] Razor vs. headless-beslutning taget: hybrid-tilgang (Razor + Block Grid til indhold, data-drevne blokke til selvbetjening)
@@ -292,11 +307,13 @@ Opsæt derudover et versioneret git pre-push hook-system:
 - [x] Repo-struktur, branch-strategi og deploy-model fastlagt
 - [x] Opstartsguide med manuelle skridt og konkrete Claude Code-opgaver klar (se ovenfor)
 - [x] Manuel opsætning gennemført (.NET SDK, Docker, git-repo)
-- [x] Opgave 1 (scaffold) gennemført — repo: https://github.com/NielsenRX/CSM-solution.git
-- [x] Opgave 4 (backlog + pre-push hook) gennemført — docs/BACKLOG.md og .githooks/pre-push aktivt
-- [ ] Opgave 2 (CRM-mock) delvist i gang — kun ICrmClient/MockCrmClient-skelet, mangler GetCustomerProfile/GetSubscriptions/GetInvoices
+- [x] Opgave 1 (scaffold) gennemført — repo: https://github.com/NielsenRX/CSM-solution.git — **TASK-01**
+- [x] Opgave 4 (backlog + pre-push hook) gennemført — docs/BACKLOG.md og .githooks/pre-push aktivt — **TASK-04**
+- [ ] Opgave 2 (CRM-mock) delvist i gang — kun ICrmClient/MockCrmClient-skelet, mangler GetCustomerProfile/GetSubscriptions/GetInvoices — **TASK-02**
 - [ ] Umbracos installationswizard gennemført (`dotnet run --project MyCMSSolution.Web`)
-- [ ] Opgave 3 (Docker) sat i gang i Claude Code
+- [ ] Opgave 3 (Docker) sat i gang i Claude Code — **TASK-03**
+- [ ] Automatiseret test-workflow sat i gang — **TASK-05**
+- [ ] Første milepæls-kodegennemgang planlagt — **TASK-06**
 - [ ] CRM-teamet har set og reageret på API-kontrakt-udkastet
 - [ ] Marketing har bekræftet blok-bibliotekets indhold/prioritet
 
