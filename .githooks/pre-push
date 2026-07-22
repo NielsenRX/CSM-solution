@@ -1,0 +1,59 @@
+#!/bin/sh
+# Pre-push hook: advarer (blokerer ikke) hvis de commits der pushes indeholder
+# kodeaendringer uden en tilsvarende opdatering af docs/BACKLOG.md.
+#
+# Aktiveres pr. klon med:
+#   git config core.hooksPath .githooks
+
+zero="0000000000000000000000000000000000000000"
+warn=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Sletning af en remote-ref: intet at tjekke.
+    if [ "$local_sha" = "$zero" ]; then
+        continue
+    fi
+
+    if [ "$remote_sha" = "$zero" ]; then
+        # Ny branch/ref paa remote: sammenlign mod merge-base med en lokal
+        # main/develop hvis den findes, ellers hele historikken for local_sha.
+        base=""
+        for candidate in main develop; do
+            if git rev-parse --verify --quiet "$candidate" >/dev/null; then
+                base=$(git merge-base "$candidate" "$local_sha" 2>/dev/null)
+                [ -n "$base" ] && break
+            fi
+        done
+    else
+        base=$(git merge-base "$remote_sha" "$local_sha" 2>/dev/null)
+        [ -z "$base" ] && base="$remote_sha"
+    fi
+
+    if [ -n "$base" ]; then
+        changed_files=$(git diff --name-only "$base" "$local_sha")
+    else
+        changed_files=$(git diff --name-only "$(git hash-object -t tree /dev/null)" "$local_sha")
+    fi
+
+    [ -z "$changed_files" ] && continue
+
+    code_changed=$(printf '%s\n' "$changed_files" | grep -v '^docs/' || true)
+    backlog_changed=$(printf '%s\n' "$changed_files" | grep -Fx 'docs/BACKLOG.md' || true)
+
+    if [ -n "$code_changed" ] && [ -z "$backlog_changed" ]; then
+        warn=1
+    fi
+done
+
+if [ "$warn" = "1" ]; then
+    cat <<'MSG'
+
+ADVARSEL: Du pusher aendringer uden en opdatering af docs/BACKLOG.md.
+Husk at opdatere status/note for de(n) relevante opgave(r), hvis pushet
+vedroerer arbejde der er sporet i backloggen.
+(Dette er kun en advarsel - pushet fortsaetter.)
+
+MSG
+fi
+
+exit 0
