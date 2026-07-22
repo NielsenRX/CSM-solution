@@ -8,5 +8,9 @@ namespace MyCMSSolution.Crm.Client;
 /// </summary>
 public interface ICrmClient
 {
-    Task<CrmCustomer?> GetCustomerAsync(string customerId, CancellationToken cancellationToken = default);
+    Task<CrmCustomerProfile?> GetCustomerProfile(string customerId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<CrmSubscription>> GetSubscriptions(string customerId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<CrmInvoice>> GetInvoices(string customerId, CancellationToken cancellationToken = default);
 }
