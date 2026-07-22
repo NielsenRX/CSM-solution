@@ -233,7 +233,7 @@ Opsæt git med main og develop branches. Tilføj en .gitignore passende til .NET
 ```
 **Status:** Alle fem projekter oprettet på `net10.0`, samlet i `MyCMSSolution.slnx`. Umbraco 17 pinnet til `17.*` via `Directory.Packages.props`. `ICrmClient`/`MockCrmClient` allerede stilladset i `Crm.Client` med DI-extension (`AddCrmClient()`), klar til opgave 2. `dotnet build`/`dotnet test` kører grønt. Git initialiseret med `main`/`develop`. **Resterende manuelt skridt:** kør `dotnet run --project MyCMSSolution.Web` for at gennemføre Umbracos installationswizard mod SQLite.
 
-### TASK-02 — CRM-integrationslag med mock (I gang)
+### TASK-02 — CRM-integrationslag med mock ✅ Gennemført
 ```
 I MyCMSSolution.Crm.Client: byg et interface ICrmClient med metoderne
 GetCustomerProfile, GetSubscriptions, GetInvoices baseret på felterne i
@@ -242,6 +242,7 @@ realistisk testdata, så resten af løsningen kan udvikles og testes, før det
 rigtige CRM-API er klart. Den rigtige implementering tilføjes senere som en
 separat klasse, der opfylder samme interface.
 ```
+**Status:** `ICrmClient` udvidet med `GetCustomerProfile`, `GetSubscriptions`, `GetInvoices` — matcher kontrakten i Spor 3 felt for felt. `MockCrmClient` har 3 testkunder: **Anna Andersen** (B2C, ét abonnement uden binding), **Peter Poulsen** (B2C, abonnement i binding til 2027-01-15 + TV-abonnement uden binding — brug denne til at teste binding-scenariet), **Nielsen & Søn ApS** (B2B, ét aktivt + ét afventende abonnement — brug denne til at teste B2B-begrænsningen om kun læseadgang). 10 unit-tests dækker alle metoder. Bevidst afvigelse: det oprindelige `GetCustomerAsync`-stub blev fjernet til fordel for `GetCustomerProfile` for at undgå to overlappende metoder — vurderet og godkendt.
 
 ### TASK-03 — Docker-opsætning (Ikke startet)
 ```
@@ -309,7 +310,7 @@ Ret ikke koden selv — bare rapporter fundene.
 - [x] Manuel opsætning gennemført (.NET SDK, Docker, git-repo)
 - [x] Opgave 1 (scaffold) gennemført — repo: https://github.com/NielsenRX/CSM-solution.git — **TASK-01**
 - [x] Opgave 4 (backlog + pre-push hook) gennemført — docs/BACKLOG.md og .githooks/pre-push aktivt — **TASK-04**
-- [ ] Opgave 2 (CRM-mock) delvist i gang — kun ICrmClient/MockCrmClient-skelet, mangler GetCustomerProfile/GetSubscriptions/GetInvoices — **TASK-02**
+- [x] Opgave 2 (CRM-mock) gennemført — 3 testkunder, 10 tests grønne — **TASK-02**
 - [ ] Umbracos installationswizard gennemført (`dotnet run --project MyCMSSolution.Web`)
 - [ ] Opgave 3 (Docker) sat i gang i Claude Code — **TASK-03**
 - [ ] Automatiseret test-workflow sat i gang — **TASK-05**
