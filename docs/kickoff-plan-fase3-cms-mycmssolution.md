@@ -35,18 +35,17 @@
 - Anbefalet arbejdsrytme: små, afgrænsede opgaver (fx "byg produktside-skabelonen", "byg CRM-læse-integration til regningsvisning") frem for store, udefinerede opgaver — mindsker risiko for fejlfortolkning
 
 ### Repo-struktur
+**Beslutning:** Flad struktur (fremfor oprindeligt planlagt src/+tests/-opdeling) — med kun 5 projekter er adskillelsen unødvendig, og omkostningen ved at omstrukturere efter opsætning (rette .slnx, risiko for git-historik-rod) opvejer ikke fordelen.
 ```
 MyCMSSolution-cms/
-├── src/
-│   ├── MyCMSSolution.Web/              # Umbraco-hovedprojekt (Razor, Block Grid views)
-│   ├── MyCMSSolution.SelfService/      # Data-drevne blokke + CRM-controllere
-│   ├── MyCMSSolution.Crm.Client/       # Wrapper-lag mod CRM-API'et (isoleret, testbart)
-│   └── MyCMSSolution.Core/             # Delte modeller, konfiguration
+├── MyCMSSolution.Web/              # Umbraco-hovedprojekt (Razor, Block Grid views)
+├── MyCMSSolution.SelfService/      # Data-drevne blokke + CRM-controllere
+├── MyCMSSolution.Crm.Client/       # Wrapper-lag mod CRM-API'et (isoleret, testbart)
+├── MyCMSSolution.Core/              # Delte modeller, konfiguration
+├── MyCMSSolution.Tests/             # Unit- og integrationstests, særligt CRM-integrationen
 ├── docker/
-│   ├── docker-compose.dev.yml      # Lokal udvikling (SQLite/lokal SQL Server)
-│   └── docker-compose.prod.yml     # Produktions-hærdet opsætning
-├── tests/
-│   └── MyCMSSolution.Tests/            # Unit- og integrationstests, særligt CRM-integrationen
+│   ├── docker-compose.dev.yml
+│   └── docker-compose.prod.yml
 └── docs/
 ```
 CRM-integrationen isoleres i sit eget projekt, så den kan testes og ændres uafhængigt af Umbraco-koden — matcher arkitekturprincippet om, at CMS'et forbruger data, men ikke ejer dem.
@@ -294,9 +293,10 @@ Opsæt derudover et versioneret git pre-push hook-system:
 - [x] Opstartsguide med manuelle skridt og konkrete Claude Code-opgaver klar (se ovenfor)
 - [x] Manuel opsætning gennemført (.NET SDK, Docker, git-repo)
 - [x] Opgave 1 (scaffold) gennemført — repo: https://github.com/NielsenRX/CSM-solution.git
+- [x] Opgave 4 (backlog + pre-push hook) gennemført — docs/BACKLOG.md og .githooks/pre-push aktivt
+- [ ] Opgave 2 (CRM-mock) delvist i gang — kun ICrmClient/MockCrmClient-skelet, mangler GetCustomerProfile/GetSubscriptions/GetInvoices
 - [ ] Umbracos installationswizard gennemført (`dotnet run --project MyCMSSolution.Web`)
-- [ ] Opgave 2-4 sat i gang i Claude Code
-- [ ] Backlog (docs/BACKLOG.md) og pre-push git-hook oprettet
+- [ ] Opgave 3 (Docker) sat i gang i Claude Code
 - [ ] CRM-teamet har set og reageret på API-kontrakt-udkastet
 - [ ] Marketing har bekræftet blok-bibliotekets indhold/prioritet
 
