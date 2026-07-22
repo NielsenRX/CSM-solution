@@ -3,6 +3,9 @@ using MyCMSSolution.Crm.Client;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+AppDomain.CurrentDomain.SetData("DataDirectory",
+    Path.Combine(builder.Environment.ContentRootPath, "umbraco", "Data"));
+
 builder.Services.AddCrmClient();
 
 builder.CreateUmbracoBuilder()
