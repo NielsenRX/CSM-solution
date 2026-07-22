@@ -211,6 +211,8 @@ Når et spørgsmål er afklaret, skrives løsningen ind i kolonnen "Løsning/bes
 > **Fast regel fremover:** Enhver ny opgave får et fortløbende ID (`TASK-07`, `TASK-08` osv.) i det øjeblik den defineres — både her i dokumentet og i `docs/BACKLOG.md`. ID'et bruges i commits/PR-beskrivelser, så arbejdet altid kan spores tilbage til den oprindelige opgave.
 >
 > **Fast regel fremover:** Enhver opgave afsluttes med et faktisk `git push` til remote (`https://github.com/NielsenRX/CSM-solution.git`) — ikke kun en lokal commit. En opgave er først "Færdig" i backloggen, når `git remote -v` og `git status` bekræfter, at både `main` og `develop` sporer og er synkroniseret med remote.
+>
+> **Fast regel fremover:** Ved *start* på en opgave opdateres `docs/BACKLOG.md` med status "I gang" med det samme, og denne opdatering pushes til remote med det samme — før selve opgaven fortsættes. Formålet er, at hvis arbejdet afbrydes midt i en opgave, er det synligt på remote, at opgaven er påbegyndt, uden at skulle vente på en færdig commit af selve koden.
 
 ### Manuelt opsætning (gøres af projektejer/IT, før Claude Code kan starte)
 1. Installer .NET 10 SDK lokalt
@@ -275,7 +277,7 @@ Opsæt derudover et versioneret git pre-push hook-system:
 - Byg af selve blok-biblioteket → afventer marketings svar på blok-prioritering (spørgsmål 2, 3)
 - Rigtig CRM-integration (i stedet for mock) → afventer CRM-teamets validering og binding-beslutningen (spørgsmål 1, 4). **Besluttet:** mock bruges bevidst indtil videre, så udviklingen kan fortsætte parallelt med at CRM-teamet bygger det rigtige API
 
-### TASK-05 — Automatiseret test ved hvert push (Ikke startet)
+### TASK-05 — Automatiseret test ved hvert push ✅ Gennemført
 ```
 Opret en GitHub Actions-workflow i .github/workflows/test.yml, der automatisk
 kører dotnet build og dotnet test på hele løsningen, hver gang der pushes til
@@ -315,7 +317,7 @@ Ret ikke koden selv — bare rapporter fundene.
 - [x] Opgave 2 (CRM-mock) gennemført — 3 testkunder, 10 tests grønne — **TASK-02**
 - [ ] Umbracos installationswizard gennemført (`dotnet run --project MyCMSSolution.Web`)
 - [ ] Opgave 3 (Docker) sat i gang i Claude Code — **TASK-03**
-- [ ] Automatiseret test-workflow sat i gang — **TASK-05**
+- [x] Automatiseret test-workflow sat i gang — **TASK-05**
 - [ ] Første milepæls-kodegennemgang planlagt — **TASK-06**
 - [ ] CRM-teamet har set og reageret på API-kontrakt-udkastet
 - [ ] Marketing har bekræftet blok-bibliotekets indhold/prioritet
