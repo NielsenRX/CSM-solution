@@ -209,6 +209,8 @@ Når et spørgsmål er afklaret, skrives løsningen ind i kolonnen "Løsning/bes
 ## Opstartsguide: Første konkrete skridt
 
 > **Fast regel fremover:** Enhver ny opgave får et fortløbende ID (`TASK-07`, `TASK-08` osv.) i det øjeblik den defineres — både her i dokumentet og i `docs/BACKLOG.md`. ID'et bruges i commits/PR-beskrivelser, så arbejdet altid kan spores tilbage til den oprindelige opgave.
+>
+> **Fast regel fremover:** Enhver opgave afsluttes med et faktisk `git push` til remote (`https://github.com/NielsenRX/CSM-solution.git`) — ikke kun en lokal commit. En opgave er først "Færdig" i backloggen, når `git remote -v` og `git status` bekræfter, at både `main` og `develop` sporer og er synkroniseret med remote.
 
 ### Manuelt opsætning (gøres af projektejer/IT, før Claude Code kan starte)
 1. Installer .NET 10 SDK lokalt
