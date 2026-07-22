@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="MyCMSSolution.Core/MyCMSSolution.Core.csproj" />
+  <Project Path="MyCMSSolution.Crm.Client/MyCMSSolution.Crm.Client.csproj" />
+  <Project Path="MyCMSSolution.SelfService/MyCMSSolution.SelfService.csproj" />
+  <Project Path="MyCMSSolution.Tests/MyCMSSolution.Tests.csproj" />
+  <Project Path="MyCMSSolution.Web/MyCMSSolution.Web.csproj" />
+</Solution>
