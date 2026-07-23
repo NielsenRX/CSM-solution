@@ -1,0 +1,80 @@
+/*
+  Projektets globale, mobile-first CSS-fundament (TASK-12).
+
+  KONVENTION FOR HELE PROJEKTET FREMOVER:
+  - Basisreglerne herunder (og i alle kommende stylesheets, jf. produktkort.css
+    fra TASK-11) gælder mobil/tablet ned til 320px, UDEN nogen min-width-
+    forudsætning.
+  - @media (min-width: ...) bruges KUN til at udvide layoutet opad til større
+    skærme - aldrig omvendt (ingen max-width-baserede "desktop-first"
+    media queries noget sted i projektet).
+  - Anbefalede breakpoints at bruge konsekvent: 768px (tablet), 1024px
+    (tablet liggende / lille laptop). Design og test altid 320px/375px
+    først, dernæst 768px, 1024px, 1440px.
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #18181b;
+  background: #fff;
+  line-height: 1.5;
+}
+
+img,
+picture,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+/* Tablet og opefter: lidt større skriftstørrelser, ikke et andet layout */
+@media (min-width: 768px) {
+  h1 {
+    font-size: 1.875rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 2.25rem;
+  }
+}
