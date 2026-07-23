@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var produktsegmenter = Model.Value<IEnumerable<string>>("produktsegment") ?? Enumerable.Empty<string>();
+}
+<main>
+    <h1>@Model.Name</h1>
+    @if (produktsegmenter.Any())
+    {
+        <p>Produktsegment: @string.Join(", ", produktsegmenter)</p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>

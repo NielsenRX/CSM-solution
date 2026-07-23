@@ -1,0 +1,23 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@{
+    var ansoegningslink = Model.Value<IEnumerable<Link>>("ansoegningslink")?.FirstOrDefault();
+    var ansoegningsemail = Model.Value<string>("ansoegningsemail");
+}
+<main>
+    <h1>@Model.Name</h1>
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+    @if (ansoegningslink is not null || !string.IsNullOrWhiteSpace(ansoegningsemail))
+    {
+        <p>
+            @if (ansoegningslink is not null)
+            {
+                <a href="@ansoegningslink.Url">@(ansoegningslink.Name ?? "Ansøg her")</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(ansoegningsemail))
+            {
+                <text> &middot; <a href="mailto:@ansoegningsemail">@ansoegningsemail</a></text>
+            }
+        </p>
+    }
+</main>

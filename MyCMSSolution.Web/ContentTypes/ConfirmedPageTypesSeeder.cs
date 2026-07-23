@@ -7,6 +7,7 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Services.ContentTypeEditing;
+using Umbraco.Cms.Core.Strings;
 
 namespace MyCMSSolution.Web.ContentTypes;
 
@@ -25,6 +26,8 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
     private readonly IContentTypeService _contentTypeService;
     private readonly IContentTypeEditingService _contentTypeEditingService;
     private readonly IDataTypeService _dataTypeService;
+    private readonly ITemplateService _templateService;
+    private readonly IShortStringHelper _shortStringHelper;
     private readonly PropertyEditorCollection _propertyEditors;
     private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
     private readonly ILogger<ConfirmedPageTypesSeeder> _logger;
@@ -34,6 +37,8 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
         IContentTypeService contentTypeService,
         IContentTypeEditingService contentTypeEditingService,
         IDataTypeService dataTypeService,
+        ITemplateService templateService,
+        IShortStringHelper shortStringHelper,
         PropertyEditorCollection propertyEditors,
         IConfigurationEditorJsonSerializer configurationEditorJsonSerializer,
         ILogger<ConfirmedPageTypesSeeder> logger)
@@ -42,6 +47,8 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
         _contentTypeService = contentTypeService;
         _contentTypeEditingService = contentTypeEditingService;
         _dataTypeService = dataTypeService;
+        _templateService = templateService;
+        _shortStringHelper = shortStringHelper;
         _propertyEditors = propertyEditors;
         _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
         _logger = logger;
@@ -113,6 +120,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.Produktside,
             "Produktside",
             "icon-shopping-basket",
+            PageTypeAliases.ProduktsideTemplateAlias,
             blockGridKey,
             new[] { ("produktsegment", "Produktsegment", produktsegmentTagsKey) });
 
@@ -122,6 +130,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.KampagneTilbud,
             "Kampagne/tilbud",
             "icon-tags",
+            PageTypeAliases.KampagneTilbudTemplateAlias,
             blockGridKey,
             new[]
             {
@@ -135,6 +144,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.NyhedPresse,
             "Nyhed/presse",
             "icon-newspaper-alt",
+            PageTypeAliases.NyhedPresseTemplateAlias,
             blockGridKey,
             new[] { ("udgivelsesdato", "Udgivelsesdato", dateKey) });
 
@@ -147,6 +157,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.Driftsinfo,
             "Driftsinfo",
             "icon-server-alt",
+            PageTypeAliases.DriftsinfoTemplateAlias,
             blockGridKey,
             new[] { ("apiKilde", "API-kilde (identifikator/endpoint)", shortTextKey) });
 
@@ -157,6 +168,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.Faq,
             "FAQ",
             "icon-help-alt",
+            PageTypeAliases.FaqTemplateAlias,
             blockGridKey,
             new[] { ("kategori", "Kategori", faqKategoriTagsKey) });
 
@@ -167,6 +179,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.Jobopslag,
             "Jobopslag",
             "icon-briefcase-alt",
+            PageTypeAliases.JobopslagTemplateAlias,
             blockGridKey,
             new[]
             {
@@ -180,6 +193,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.OmKontaktVilkaar,
             "Om/kontakt/vilkår",
             "icon-info",
+            PageTypeAliases.OmKontaktVilkaarTemplateAlias,
             blockGridKey,
             Array.Empty<(string, string, Guid)>());
 
@@ -190,6 +204,7 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             PageTypeAliases.Partnerside,
             "Partnerside",
             "icon-handshake",
+            PageTypeAliases.PartnersideTemplateAlias,
             blockGridKey,
             new[] { ("partnernavn", "Partnernavn", shortTextKey) });
 
@@ -321,12 +336,14 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
         string alias,
         string name,
         string icon,
+        string templateAlias,
         Guid blockGridDataTypeKey,
         IReadOnlyList<(string Alias, string Name, Guid DataTypeKey)> extraProperties)
     {
         if (existingAliases.Contains(alias))
         {
             _logger.LogInformation("Sidetype '{Alias}' findes allerede - springer over.", alias);
+            await EnsureTemplateAssignedAsync(alias, name, templateAlias);
             return;
         }
 
@@ -387,5 +404,47 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
         {
             _logger.LogWarning("Kunne ikke oprette sidetype '{Alias}': {Status}", alias, result.Status);
         }
+
+        await EnsureTemplateAssignedAsync(alias, name, templateAlias);
+    }
+
+    /// <summary>
+    /// Opretter (hvis nødvendigt) en Template, der peger på den fysiske Razor-visning
+    /// <c>Views/{templateAlias}.cshtml</c>, og tildeler den som standardtemplate for sidetypen (TASK-14).
+    /// Idempotent: springer over, hvis sidetypen allerede har en standardtemplate.
+    /// </summary>
+    private async Task EnsureTemplateAssignedAsync(string contentTypeAlias, string contentTypeName, string templateAlias)
+    {
+        IContentType? contentType = _contentTypeService.Get(contentTypeAlias);
+        if (contentType is null)
+        {
+            _logger.LogWarning("Sidetype '{Alias}' blev ikke fundet - kan ikke tildele template.", contentTypeAlias);
+            return;
+        }
+
+        if (contentType.DefaultTemplate is not null)
+        {
+            _logger.LogInformation("Sidetype '{Alias}' har allerede en standardtemplate - springer over.", contentTypeAlias);
+            return;
+        }
+
+        ITemplate? template = await _templateService.GetAsync(templateAlias);
+        if (template is null)
+        {
+            var newTemplate = new Template(_shortStringHelper, contentTypeName, templateAlias);
+            var createResult = await _templateService.CreateAsync(newTemplate, Constants.Security.SuperUserKey);
+
+            if (!createResult.Success)
+            {
+                _logger.LogWarning("Kunne ikke oprette template '{TemplateAlias}': {Status}", templateAlias, createResult.Status);
+                return;
+            }
+
+            template = createResult.Result;
+        }
+
+        contentType.SetDefaultTemplate(template);
+        _contentTypeService.Save(contentType, Constants.Security.SuperUserId);
+        _logger.LogInformation("Tildelte template '{TemplateAlias}' som standard for sidetype '{Alias}'.", templateAlias, contentTypeAlias);
     }
 }

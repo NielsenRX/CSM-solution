@@ -1,0 +1,14 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var apiKilde = Model.Value<string>("apiKilde");
+}
+<main>
+    <h1>@Model.Name</h1>
+    @* Selve driftsstatussen hentes IKKE her - den skal hentes live fra det eksterne API/feed
+       identificeret ved apiKilde, i en separat, kommende integration (jf. TASK-07). *@
+    @if (!string.IsNullOrWhiteSpace(apiKilde))
+    {
+        <p data-api-kilde="@apiKilde">Driftsstatus for <strong>@apiKilde</strong> vises her, når live-integrationen er bygget.</p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>

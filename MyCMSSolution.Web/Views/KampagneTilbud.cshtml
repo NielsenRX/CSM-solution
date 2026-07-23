@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var startdato = Model.Value<DateOnly?>("startdato");
+    var slutdato = Model.Value<DateOnly?>("slutdato");
+}
+<main>
+    <h1>@Model.Name</h1>
+    @if (startdato is not null || slutdato is not null)
+    {
+        <p>
+            Kampagneperiode: @(startdato?.ToString("d. MMMM yyyy") ?? "-") &ndash; @(slutdato?.ToString("d. MMMM yyyy") ?? "-")
+        </p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>

@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var udgivelsesdato = Model.Value<DateOnly?>("udgivelsesdato");
+}
+<main>
+    <h1>@Model.Name</h1>
+    @if (udgivelsesdato is not null)
+    {
+        <p>Udgivet: @udgivelsesdato?.ToString("d. MMMM yyyy")</p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>

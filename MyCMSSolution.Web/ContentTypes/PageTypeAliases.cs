@@ -16,4 +16,18 @@ public static class PageTypeAliases
 
     /// <summary>Fælles Block Grid-property til indholdsområdet på alle sidetyper.</summary>
     public const string Indholdsomraade = "indholdsomraade";
+
+    /// <summary>
+    /// Template-alias (= Views/{alias}.cshtml-filnavn) for hver sidetype (TASK-14). Holdt adskilt
+    /// fra sidetypens dokumenttype-alias og bevidst PascalCase/ASCII-sikker, så den kan bruges direkte
+    /// som filnavn - uafhængig af visningsnavne som "Kampagne/tilbud", der indeholder "/".
+    /// </summary>
+    public const string ProduktsideTemplateAlias = "Produktside";
+    public const string KampagneTilbudTemplateAlias = "KampagneTilbud";
+    public const string NyhedPresseTemplateAlias = "NyhedPresse";
+    public const string DriftsinfoTemplateAlias = "Driftsinfo";
+    public const string FaqTemplateAlias = "Faq";
+    public const string JobopslagTemplateAlias = "Jobopslag";
+    public const string OmKontaktVilkaarTemplateAlias = "OmKontaktVilkaar";
+    public const string PartnersideTemplateAlias = "Partnerside";
 }

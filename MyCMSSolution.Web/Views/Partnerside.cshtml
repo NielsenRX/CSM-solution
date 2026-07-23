@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var partnernavn = Model.Value<string>("partnernavn");
+}
+<main>
+    <h1>@Model.Name</h1>
+    @if (!string.IsNullOrWhiteSpace(partnernavn))
+    {
+        <p>Partner: @partnernavn</p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>

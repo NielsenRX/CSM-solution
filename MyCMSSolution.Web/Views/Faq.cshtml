@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var kategorier = Model.Value<IEnumerable<string>>("kategori") ?? Enumerable.Empty<string>();
+}
+<main>
+    <h1>@Model.Name</h1>
+    @if (kategorier.Any())
+    {
+        <p>Kategori: @string.Join(", ", kategorier)</p>
+    }
+    @await Html.GetBlockGridHtmlAsync(Model, "indholdsomraade")
+</main>
