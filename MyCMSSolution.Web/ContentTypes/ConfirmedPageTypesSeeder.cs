@@ -55,6 +55,20 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             return;
         }
 
+        try
+        {
+            await SeedAsync();
+        }
+        catch (Exception ex)
+        {
+            // Denne opsætning må aldrig forhindre selve applikationen i at starte og betjene
+            // trafik - en fejl her logges, men stopper ikke opstarten.
+            _logger.LogError(ex, "Kunne ikke oprette/opdatere sidetyper og datatyper ved opstart.");
+        }
+    }
+
+    private async Task SeedAsync()
+    {
         Guid blockGridKey = await GetOrCreateDataTypeAsync(
             "MyCMSSolution - Indholdsområde (Block Grid)",
             Constants.PropertyEditors.Aliases.BlockGrid,
@@ -178,6 +192,103 @@ public class ConfirmedPageTypesSeeder : INotificationAsyncHandler<UmbracoApplica
             "icon-handshake",
             blockGridKey,
             new[] { ("partnernavn", "Partnernavn", shortTextKey) });
+
+        // Produktkort (TASK-11): Block Grid-elementtype til brug på Produktside. Skal registreres
+        // som en tilladt blok i det delte Block Grid-felt, ellers kan marketing ikke placere den.
+        await EnsureProduktkortElementTypeAsync(existingAliases, shortTextKey);
+        await EnsureProduktkortAllowedInBlockGridAsync();
+    }
+
+    private async Task EnsureProduktkortElementTypeAsync(HashSet<string> existingAliases, Guid shortTextDataTypeKey)
+    {
+        if (existingAliases.Contains(ProduktkortAliases.ElementTypeAlias))
+        {
+            _logger.LogInformation("Element-type '{Alias}' findes allerede - springer over.", ProduktkortAliases.ElementTypeAlias);
+            return;
+        }
+
+        var containerKey = Guid.NewGuid();
+        var model = new ContentTypeCreateModel
+        {
+            Key = ProduktkortAliases.ElementTypeKey,
+            Alias = ProduktkortAliases.ElementTypeAlias,
+            Name = "Produktkort",
+            Icon = "icon-shopping-basket",
+            AllowedAsRoot = false,
+            IsElement = true,
+            Containers = new[]
+            {
+                new ContentTypePropertyContainerModel
+                {
+                    Key = containerKey,
+                    Name = "Indhold",
+                    Type = PropertyGroupType.Group.ToString(),
+                    SortOrder = 0,
+                },
+            },
+            Properties = new[]
+            {
+                new ContentTypePropertyTypeModel
+                {
+                    Key = Guid.NewGuid(),
+                    ContainerKey = containerKey,
+                    Alias = ProduktkortAliases.ProduktReferencePropertyAlias,
+                    Name = "Produktreference",
+                    DataTypeKey = shortTextDataTypeKey,
+                    SortOrder = 0,
+                },
+            },
+        };
+
+        var result = await _contentTypeEditingService.CreateAsync(model, Constants.Security.SuperUserKey);
+
+        if (result.Success)
+        {
+            _logger.LogInformation("Oprettede element-type '{Alias}' (Produktkort).", ProduktkortAliases.ElementTypeAlias);
+        }
+        else
+        {
+            _logger.LogWarning("Kunne ikke oprette element-type '{Alias}': {Status}", ProduktkortAliases.ElementTypeAlias, result.Status);
+        }
+    }
+
+    private async Task EnsureProduktkortAllowedInBlockGridAsync()
+    {
+        IDataType? blockGridDataType = await _dataTypeService.GetAsync("MyCMSSolution - Indholdsområde (Block Grid)");
+        if (blockGridDataType is null)
+        {
+            _logger.LogWarning("Kunne ikke finde Block Grid-datatypen - Produktkort blev ikke tilføjet som tilladt blok.");
+            return;
+        }
+
+        IDataEditor editor = _propertyEditors[Constants.PropertyEditors.Aliases.BlockGrid];
+        IConfigurationEditor configurationEditor = editor.GetConfigurationEditor();
+
+        var currentConfig = (BlockGridConfiguration)configurationEditor.ToConfigurationObject(
+            blockGridDataType.ConfigurationData, _configurationEditorJsonSerializer)!;
+
+        IEnumerable<BlockGridConfiguration.BlockGridBlockConfiguration> existingBlocks =
+            currentConfig.Blocks ?? Array.Empty<BlockGridConfiguration.BlockGridBlockConfiguration>();
+
+        if (existingBlocks.Any(b => b.ContentElementTypeKey == ProduktkortAliases.ElementTypeKey))
+        {
+            _logger.LogInformation("Produktkort er allerede tilladt i Block Grid-feltet - springer over.");
+            return;
+        }
+
+        currentConfig.Blocks = existingBlocks
+            .Append(new BlockGridConfiguration.BlockGridBlockConfiguration
+            {
+                ContentElementTypeKey = ProduktkortAliases.ElementTypeKey,
+                AllowAtRoot = true,
+                AllowInAreas = true,
+            })
+            .ToArray();
+
+        blockGridDataType.ConfigurationData = configurationEditor.FromConfigurationObject(currentConfig, _configurationEditorJsonSerializer);
+        _dataTypeService.Save(blockGridDataType, Constants.Security.SuperUserId);
+
+        _logger.LogInformation("Tilføjede Produktkort som tilladt blok i Block Grid-feltet.");
     }
 
     private async Task<Guid> GetOrCreateDataTypeAsync(string name, string editorAlias, object? configurationObject)

@@ -1,0 +1,151 @@
+/*
+  Produktkort (TASK-11) - device-first: mobil/tablet er udgangspunktet.
+  Basisreglerne herunder gælder helt ned til 320px og opad, uden nogen
+  min-width-forudsætning. @media (min-width: ...) bruges kun til at
+  UDVIDE layoutet på større skærme, aldrig til at rette et desktop-first design.
+*/
+
+.produktkort {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 0.75rem;
+  background: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.produktkort__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.produktkort__navn {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.produktkort__hastighed {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #52525b;
+}
+
+.produktkort__spar-badge {
+  display: inline-block;
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.produktkort__pris {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.produktkort__pris-nu {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.produktkort__pris-normal {
+  font-size: 0.85rem;
+  color: #71717a;
+}
+
+.produktkort__oprettelsesgebyr {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #52525b;
+}
+
+.produktkort__fordele summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  min-height: 44px; /* toucht-target-størrelse på mobil */
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.produktkort__fordele ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.produktkort__fordele li {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.produktkort__vaelg-knap {
+  width: 100%;
+  min-height: 44px; /* touch-target-størrelse på mobil */
+  border: 2px solid #18181b;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #18181b;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.produktkort__vaelg-tekst--valgt {
+  display: none;
+}
+
+.produktkort__vaelg-knap[aria-pressed="true"] {
+  background: #18181b;
+  color: #fff;
+}
+
+.produktkort__vaelg-knap[aria-pressed="true"] .produktkort__vaelg-tekst--vaelg {
+  display: none;
+}
+
+.produktkort__vaelg-knap[aria-pressed="true"] .produktkort__vaelg-tekst--valgt {
+  display: inline;
+}
+
+.produktkort__mindstepris {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
+/* Tablet og opefter: pris side om side i stedet for stablet */
+@media (min-width: 768px) {
+  .produktkort {
+    padding: 1.25rem;
+  }
+
+  .produktkort__pris {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+}
+
+/* Desktop: kortet skal ikke strække sig ud i fuld bredde i et grid */
+@media (min-width: 1024px) {
+  .produktkort {
+    max-width: 360px;
+  }
+
+  .produktkort__vaelg-knap {
+    width: auto;
+    padding: 0 1.5rem;
+    align-self: flex-start;
+  }
+}

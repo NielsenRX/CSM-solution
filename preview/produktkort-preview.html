@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Produktkort - statisk preview (TASK-11)</title>
+<style>
+  /* --- Preview-side (ikke en del af selve blokken) --- */
+  body {
+    margin: 0;
+    padding: 1rem;
+    background: #f4f4f5;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  .preview-info {
+    max-width: 720px;
+    margin: 0 auto 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .preview-info strong {
+    display: inline-block;
+    min-width: 9rem;
+  }
+
+  .preview-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: flex-start;
+  }
+
+  .preview-card-wrapper {
+    flex: 1 1 320px;
+    max-width: 400px;
+  }
+
+  .preview-card-wrapper h2 {
+    font-size: 0.9rem;
+    color: #52525b;
+    margin: 0 0 0.5rem;
+  }
+
+  /* --- Fra MyCMSSolution.Web/wwwroot/css/produktkort.css (samme fil, kopieret ind for at gøre
+       denne previewfil selvstændig og nem at åbne direkte som fil). Se den fil for kommentarer. --- */
+  .produktkort {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #d4d4d8;
+    border-radius: 0.75rem;
+    background: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  .produktkort__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .produktkort__navn {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .produktkort__hastighed {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #52525b;
+  }
+
+  .produktkort__spar-badge {
+    display: inline-block;
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .produktkort__pris {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .produktkort__pris-nu {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .produktkort__pris-normal {
+    font-size: 0.85rem;
+    color: #71717a;
+  }
+
+  .produktkort__oprettelsesgebyr {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #52525b;
+  }
+
+  .produktkort__fordele summary {
+    cursor: pointer;
+    padding: 0.5rem 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .produktkort__fordele ul {
+    margin: 0.25rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  .produktkort__fordele li {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .produktkort__vaelg-knap {
+    width: 100%;
+    min-height: 44px;
+    border: 2px solid #18181b;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #18181b;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .produktkort__vaelg-tekst--valgt {
+    display: none;
+  }
+
+  .produktkort__vaelg-knap[aria-pressed="true"] {
+    background: #18181b;
+    color: #fff;
+  }
+
+  .produktkort__vaelg-knap[aria-pressed="true"] .produktkort__vaelg-tekst--vaelg {
+    display: none;
+  }
+
+  .produktkort__vaelg-knap[aria-pressed="true"] .produktkort__vaelg-tekst--valgt {
+    display: inline;
+  }
+
+  .produktkort__mindstepris {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #71717a;
+  }
+
+  @media (min-width: 768px) {
+    .produktkort {
+      padding: 1.25rem;
+    }
+
+    .produktkort__pris {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .produktkort {
+      max-width: 360px;
+    }
+
+    .produktkort__vaelg-knap {
+      width: auto;
+      padding: 0 1.5rem;
+      align-self: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-info">
+  <div><strong>Nuværende bredde:</strong> <span id="viewport-width"></span>px</div>
+  <div><strong>Test disse bredder:</strong> 320, 375, 390-428, 768, 1024, 1440 (brug browserens DevTools-enhedsværktøj eller resize vinduet)</div>
+  <div><strong>Kilde:</strong> Samme markup/CSS som MyCMSSolution.Web/Views/Shared/Components/Produktkort/Default.cshtml + wwwroot/css/produktkort.css</div>
+</div>
+
+<div class="preview-cards">
+  <div class="preview-card-wrapper">
+    <h2>Eksempel: bredband-500</h2>
+    <div class="produktkort">
+      <header class="produktkort__header">
+        <h3 class="produktkort__navn">Bredbånd 500/500</h3>
+        <p class="produktkort__hastighed">500/500 Mbit/s</p>
+      </header>
+
+      <p class="produktkort__spar-badge">Spar 100 kr/md i 6 måneder</p>
+
+      <div class="produktkort__pris">
+        <span class="produktkort__pris-nu">299 kr/md</span>
+        <span class="produktkort__pris-normal">399 kr/md efter 6 mdr.</span>
+      </div>
+
+      <p class="produktkort__oprettelsesgebyr">Gratis oprettelse i kampagneperioden</p>
+
+      <details class="produktkort__fordele">
+        <summary>Fordele</summary>
+        <ul>
+          <li>Fri installation</li>
+          <li>Ingen binding</li>
+          <li>Gratis router inkluderet</li>
+          <li>Fri fart op og ned</li>
+        </ul>
+      </details>
+
+      <button type="button" class="produktkort__vaelg-knap" aria-pressed="false" data-produktkort-vaelg>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--vaelg">Vælg</span>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--valgt">Valgt&nbsp;✓</span>
+      </button>
+
+      <p class="produktkort__mindstepris">Mindstepris ved 6 måneders kampagneperiode: 1.794 kr (299 kr x 6 måneder).</p>
+    </div>
+  </div>
+
+  <div class="preview-card-wrapper">
+    <h2>Eksempel: bredband-1000 (her vist forudvalgt)</h2>
+    <div class="produktkort">
+      <header class="produktkort__header">
+        <h3 class="produktkort__navn">Bredbånd 1000/1000</h3>
+        <p class="produktkort__hastighed">1000/1000 Mbit/s</p>
+      </header>
+
+      <p class="produktkort__spar-badge">Spar 100 kr/md i 6 måneder</p>
+
+      <div class="produktkort__pris">
+        <span class="produktkort__pris-nu">399 kr/md</span>
+        <span class="produktkort__pris-normal">499 kr/md efter 6 mdr.</span>
+      </div>
+
+      <p class="produktkort__oprettelsesgebyr">Oprettelse: 499 kr</p>
+
+      <details class="produktkort__fordele" open>
+        <summary>Fordele</summary>
+        <ul>
+          <li>Fri installation</li>
+          <li>Ingen binding</li>
+          <li>Gratis router inkluderet</li>
+          <li>Prioriteret support</li>
+        </ul>
+      </details>
+
+      <button type="button" class="produktkort__vaelg-knap" aria-pressed="true" data-produktkort-vaelg>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--vaelg">Vælg</span>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--valgt">Valgt&nbsp;✓</span>
+      </button>
+
+      <p class="produktkort__mindstepris">Mindstepris ved 6 måneders kampagneperiode: 2.893 kr (399 kr x 6 måneder + 499 kr i oprettelse).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Samme toggle-logik som wwwroot/js/produktkort.js
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-produktkort-vaelg]");
+    if (!button) {
+      return;
+    }
+    var isPressed = button.getAttribute("aria-pressed") === "true";
+    button.setAttribute("aria-pressed", isPressed ? "false" : "true");
+  });
+
+  // Kun til denne previewside: viser aktuel viewport-bredde, så det er nemt at se,
+  // hvilket af testbredderne (320/375/390-428/768/1024/1440) man rammer.
+  function updateWidth() {
+    document.getElementById("viewport-width").textContent = window.innerWidth;
+  }
+  window.addEventListener("resize", updateWidth);
+  updateWidth();
+</script>
+
+</body>
+</html>

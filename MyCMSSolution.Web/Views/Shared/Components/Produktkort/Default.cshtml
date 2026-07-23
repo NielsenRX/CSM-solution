@@ -1,0 +1,36 @@
+@model MyCMSSolution.SelfService.Produktkort.ProduktkortData
+
+<div class="produktkort">
+    <header class="produktkort__header">
+        <h3 class="produktkort__navn">@Model.ProduktNavn</h3>
+        <p class="produktkort__hastighed">@Model.Hastighed</p>
+    </header>
+
+    <p class="produktkort__spar-badge">@Model.SparBadgeTekst</p>
+
+    <div class="produktkort__pris">
+        <span class="produktkort__pris-nu">@Model.NuvaerendePris.ToString("0") kr/md</span>
+        <span class="produktkort__pris-normal">
+            @Model.NormalprisEfterKampagne.ToString("0") kr/md efter @Model.KampagnePeriodeMaaneder mdr.
+        </span>
+    </div>
+
+    <p class="produktkort__oprettelsesgebyr">@Model.OprettelsesgebyrTekst</p>
+
+    <details class="produktkort__fordele">
+        <summary>Fordele</summary>
+        <ul>
+            @foreach (var fordel in Model.Fordele)
+            {
+                <li>@fordel</li>
+            }
+        </ul>
+    </details>
+
+    <button type="button" class="produktkort__vaelg-knap" aria-pressed="false" data-produktkort-vaelg>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--vaelg">Vælg</span>
+        <span class="produktkort__vaelg-tekst produktkort__vaelg-tekst--valgt">Valgt&nbsp;✓</span>
+    </button>
+
+    <p class="produktkort__mindstepris">@Model.MindsteprisOplysning</p>
+</div>

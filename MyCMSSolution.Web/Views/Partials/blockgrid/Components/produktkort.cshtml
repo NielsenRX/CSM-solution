@@ -1,0 +1,19 @@
+@using Umbraco.Cms.Core.Models.Blocks
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<BlockGridItem>
+@{
+    var produktreference = Model.Content.Value<string>(MyCMSSolution.Web.ContentTypes.ProduktkortAliases.ProduktReferencePropertyAlias);
+
+    // Kun ét sæt CSS/JS pr. sideanmodning, uanset hvor mange Produktkort-blokke siden har.
+    const string assetsFlagKey = "ProduktkortAssetsIncluded";
+    var shouldIncludeAssets = !Context.Items.ContainsKey(assetsFlagKey);
+    if (shouldIncludeAssets)
+    {
+        Context.Items[assetsFlagKey] = true;
+    }
+}
+@if (shouldIncludeAssets)
+{
+    <link rel="stylesheet" href="~/css/produktkort.css" />
+    <script src="~/js/produktkort.js" defer></script>
+}
+@await Component.InvokeAsync("Produktkort", new { produktreference })

@@ -1,5 +1,6 @@
 
 using MyCMSSolution.Crm.Client;
+using MyCMSSolution.SelfService.Produktkort;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ AppDomain.CurrentDomain.SetData("DataDirectory",
     Path.Combine(builder.Environment.ContentRootPath, "umbraco", "Data"));
 
 builder.Services.AddCrmClient();
+builder.Services.AddProduktkortDataProvider();
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
